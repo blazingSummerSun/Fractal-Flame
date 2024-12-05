@@ -1,23 +1,25 @@
 package backend.academy.fractal;
 
-public record FractalImage(Pixel[] data, int width, int height) {
+public record FractalImage(Pixel[][] data, int width, int height) {
     public static FractalImage create(int width, int height) {
-        Pixel[] data = new Pixel[width * height];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = new Pixel(0, 0, 0, 0);
+        Pixel[][] data = new Pixel[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                data[i][j] = new Pixel(i, j, 0, 0, 0, 0);
+            }
         }
         return new FractalImage(data, width, height);
     }
 
     public boolean contains(int x, int y) {
-        return x >= 0 && x < width && y >= 0 && y < height;
+        return data[x][y].hitCount() > 0;
     }
 
     public Pixel pixel(int x, int y) {
-        return data[y * width + x];
+        return data[x][y];
     }
 
     public void updatePixel(int x, int y, Pixel pixel) {
-        data[y * width + x] = pixel;
+        data[x][y] = pixel;
     }
 }
