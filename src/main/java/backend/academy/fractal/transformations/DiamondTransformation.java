@@ -1,7 +1,7 @@
 package backend.academy.fractal.transformations;
 
 public class DiamondTransformation implements Transformation {
-    private static final double SCALE = 2.15;
+    private static final double SCALE = 1.5;
 
     @Override
     public double[] transform(double x, double y) {
