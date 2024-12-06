@@ -1,4 +1,6 @@
-package backend.academy.fractal;
+package backend.academy.fractal.image;
+
+import backend.academy.fractal.units.Pixel;
 
 public record FractalImage(Pixel[][] data, int width, int height) {
     public static FractalImage create(int width, int height) {

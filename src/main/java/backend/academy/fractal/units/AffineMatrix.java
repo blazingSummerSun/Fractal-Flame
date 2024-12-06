@@ -1,4 +1,4 @@
-package backend.academy.fractal;
+package backend.academy.fractal.units;
 
 
 @SuppressWarnings("RecordComponentNumber")
