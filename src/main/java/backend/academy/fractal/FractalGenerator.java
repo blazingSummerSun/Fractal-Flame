@@ -9,10 +9,10 @@ import java.awt.image.BufferedImage;
 import java.security.SecureRandom;
 
 public class FractalGenerator {
-    private static final double XMIN = -1.48;
-    private static final double XMAX = 1.48;
-    private static final double YMIN = -1;
-    private static final double YMAX = 1;
+    private static final double XMIN = -1.2;
+    private static final double XMAX = 1.2;
+    private static final double YMIN = -1.2;
+    private static final double YMAX = 1.2;
     private static final int INITIAL_ITER = -20;
     private static final SecureRandom RANDOM = new SecureRandom();
     private final int width;
