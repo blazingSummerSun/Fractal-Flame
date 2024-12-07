@@ -1,7 +1,7 @@
 package backend.academy.fractal.transformations;
 
 public class FisheyeTransformation implements Transformation {
-    private static final double SCALE = 1.4;
+    private static final double SCALE = 1.25;
 
     @Override
     public double[] transform(double x, double y) {

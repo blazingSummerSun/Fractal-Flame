@@ -1,7 +1,7 @@
 package backend.academy.fractal.transformations;
 
 public class BubbleTransformation implements Transformation {
-    private static final double SCALE = 2;
+    private static final double SCALE = 1.7;
     private static final int BUBBLE_RADIUS = 4;
 
     @Override

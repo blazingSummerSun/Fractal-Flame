@@ -13,6 +13,7 @@ public class FractalGenerator {
     private static final double XMAX = 1.2;
     private static final double YMIN = -1.2;
     private static final double YMAX = 1.2;
+    private static final double GAMMA = 2.2;
     private static final int INITIAL_ITER = -20;
     private static final SecureRandom RANDOM = new SecureRandom();
     private final int width;
@@ -28,11 +29,9 @@ public class FractalGenerator {
     public BufferedImage generateFractal(
             int maxIterations,
             int num,
-            AffineMatrix[] matrices,
-            int xRes,
-            int yRes
+            AffineMatrix[] matrices
     ) {
-        FractalImage diamondImage = FractalImage.create(width, height);
+        FractalImage generatedImage = FractalImage.create(width, height);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         for (int points = 0; points < num; points++) {
@@ -49,34 +48,35 @@ public class FractalGenerator {
                 newY = transformed[1];
 
                 if (step >= 0 && belongsTo(newX, newY)) {
-                    int x1 = xRes - (int) (((XMAX - newX) / (XMAX - XMIN)) * xRes);
-                    int y1 = yRes - (int) (((YMAX - newY) / (YMAX - YMIN)) * yRes);
-                    if (x1 < xRes && y1 < yRes) {
-                        if (!diamondImage.contains(x1, y1)) {
+                    int x1 = width - (int) (((XMAX - newX) / (XMAX - XMIN)) * width);
+                    int y1 = height - (int) (((YMAX - newY) / (YMAX - YMIN)) * height);
+                    if (x1 < width && y1 < height) {
+                        if (!generatedImage.contains(x1, y1)) {
                             Pixel pixel = new Pixel(
                                     x1, y1,
-                                    matrices[i].red(), matrices[i].green(), matrices[i].blue(), 1
+                                    matrices[i].red(), matrices[i].green(), matrices[i].blue(), 1, 1
                             );
-                            diamondImage.updatePixel(x1, y1, pixel);
+                            generatedImage.updatePixel(x1, y1, pixel);
                         } else {
-                            Pixel oldPixel = diamondImage.pixel(x1, y1);
+                            Pixel oldPixel = generatedImage.pixel(x1, y1);
                             Pixel newPixel = new Pixel(
                                     x1, y1,
                                     (oldPixel.r() + matrices[i].red()) / 2,
                                     (oldPixel.g() + matrices[i].green()) / 2,
                                     (oldPixel.b() + matrices[i].blue()) / 2,
-                                    oldPixel.hitCount() + 1
+                                    oldPixel.hitCount() + 1, 1
                             );
-                            diamondImage.updatePixel(x1, y1, newPixel);
+                            generatedImage.updatePixel(x1, y1, newPixel);
                         }
                     }
                 }
             }
         }
+        correction(width, height, generatedImage);
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                Pixel pixel = diamondImage.pixel(x, y);
+                Pixel pixel = generatedImage.pixel(x, y);
                 int color = new Color(pixel.r(), pixel.g(), pixel.b()).getRGB();
                 image.setRGB(x, y, color);
             }
@@ -87,5 +87,35 @@ public class FractalGenerator {
 
     private static boolean belongsTo(double x, double y) {
         return x >= XMIN && x <= XMAX && y >= YMIN && y <= YMAX;
+    }
+
+    private static void correction(int width, int height, FractalImage image) {
+        double max = 0.0;
+
+        for (int row = 0; row < width; row++) {
+            for (int col = 0; col < height; col++) {
+                Pixel pixel = image.data()[row][col];
+                if (pixel.hitCount() != 0) {
+                    double normal = Math.log10(pixel.hitCount());
+                    if (normal > max) {
+                        max = normal;
+                    }
+                    image.updatePixel(row, col, new Pixel(
+                            pixel.x(), pixel.y(), pixel.r(), pixel.g(), pixel.b(), pixel.hitCount(), normal));
+                }
+            }
+        }
+        for (int row = 0; row < width; row++) {
+            for (int col = 0; col < height; col++) {
+                Pixel pixel = image.data()[row][col];
+                double normalized = pixel.normal() / max;
+                double factor = Math.pow(normalized, 1.0 / GAMMA);
+                int red = (int) (pixel.r() * factor);
+                int green = (int) (pixel.g() * factor);
+                int blue = (int) (pixel.b() * factor);
+                image.updatePixel(row, col, new Pixel(
+                        pixel.x(), pixel.y(), red, green, blue, pixel.hitCount(), normalized));
+            }
+        }
     }
 }
