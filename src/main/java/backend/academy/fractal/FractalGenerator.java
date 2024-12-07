@@ -29,10 +29,13 @@ public class FractalGenerator {
     public BufferedImage generateFractal(
             int maxIterations,
             int num,
-            AffineMatrix[] matrices
+            AffineMatrix[] matrices,
+            int symmetry
     ) {
         FractalImage generatedImage = FractalImage.create(width, height);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        double angleIncrement = 2 * Math.PI / symmetry;
 
         for (int points = 0; points < num; points++) {
             double newX = RANDOM.nextDouble(XMIN, XMAX);
@@ -47,31 +50,38 @@ public class FractalGenerator {
                 newX = transformed[0];
                 newY = transformed[1];
 
-                if (step >= 0 && belongsTo(newX, newY)) {
-                    int x1 = width - (int) (((XMAX - newX) / (XMAX - XMIN)) * width);
-                    int y1 = height - (int) (((YMAX - newY) / (YMAX - YMIN)) * height);
-                    if (x1 < width && y1 < height) {
-                        if (!generatedImage.contains(x1, y1)) {
-                            Pixel pixel = new Pixel(
-                                    x1, y1,
-                                    matrices[i].red(), matrices[i].green(), matrices[i].blue(), 1, 1
-                            );
-                            generatedImage.updatePixel(x1, y1, pixel);
-                        } else {
-                            Pixel oldPixel = generatedImage.pixel(x1, y1);
-                            Pixel newPixel = new Pixel(
-                                    x1, y1,
-                                    (oldPixel.r() + matrices[i].red()) / 2,
-                                    (oldPixel.g() + matrices[i].green()) / 2,
-                                    (oldPixel.b() + matrices[i].blue()) / 2,
-                                    oldPixel.hitCount() + 1, 1
-                            );
-                            generatedImage.updatePixel(x1, y1, newPixel);
+                for (int s = 0; s < symmetry; s++) {
+                    double angle = s * angleIncrement;
+                    double symX = newX * Math.cos(angle) - newY * Math.sin(angle);
+                    double symY = newX * Math.sin(angle) + newY * Math.cos(angle);
+
+                    if (step >= 0 && belongsTo(symX, symY)) {
+                        int x1 = width - (int) (((XMAX - symX) / (XMAX - XMIN)) * width);
+                        int y1 = height - (int) (((YMAX - symY) / (YMAX - YMIN)) * height);
+                        if (x1 < width && y1 < height) {
+                            if (!generatedImage.contains(x1, y1)) {
+                                Pixel pixel = new Pixel(
+                                        x1, y1,
+                                        matrices[i].red(), matrices[i].green(), matrices[i].blue(), 1, 1
+                                );
+                                generatedImage.updatePixel(x1, y1, pixel);
+                            } else {
+                                Pixel oldPixel = generatedImage.pixel(x1, y1);
+                                Pixel newPixel = new Pixel(
+                                        x1, y1,
+                                        (oldPixel.r() + matrices[i].red()) / 2,
+                                        (oldPixel.g() + matrices[i].green()) / 2,
+                                        (oldPixel.b() + matrices[i].blue()) / 2,
+                                        oldPixel.hitCount() + 1, 1
+                                );
+                                generatedImage.updatePixel(x1, y1, newPixel);
+                            }
                         }
                     }
                 }
             }
         }
+
         correction(width, height, generatedImage);
 
         for (int x = 0; x < width; x++) {
@@ -84,6 +94,7 @@ public class FractalGenerator {
 
         return image;
     }
+
 
     private static boolean belongsTo(double x, double y) {
         return x >= XMIN && x <= XMAX && y >= YMIN && y <= YMAX;
