@@ -4,7 +4,6 @@ import backend.academy.fractal.image.FractalImage;
 import backend.academy.fractal.transformations.Transformation;
 import backend.academy.fractal.units.AffineMatrix;
 import backend.academy.fractal.units.Pixel;
-
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.security.SecureRandom;
