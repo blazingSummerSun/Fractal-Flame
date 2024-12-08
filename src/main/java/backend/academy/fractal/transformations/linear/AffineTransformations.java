@@ -2,7 +2,12 @@ package backend.academy.fractal.transformations.linear;
 
 import backend.academy.fractal.units.AffineMatrix;
 
+/**
+ * The AffineTransformations class holds a collection of predefined affine transformations.
+ * It provides a method to pick a set of transformations based on an index.
+ */
 public class AffineTransformations {
+
     @SuppressWarnings("checkstyle:MagicNumber")
     AffineMatrix[][] transformations = {
         {
@@ -46,7 +51,13 @@ public class AffineTransformations {
         }
     };
 
-    public AffineMatrix[] getRandomTransformation(int index) {
+    /**
+     * Pick a set of affine transformations based on the specified index.
+     *
+     * @param index the index of the transformation set to get
+     * @return an array of AffineMatrix objects representing the transformation set
+     */
+    public AffineMatrix[] getTransformation(int index) {
         return transformations[index];
     }
 }

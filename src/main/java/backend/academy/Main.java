@@ -22,12 +22,22 @@ import java.security.SecureRandom;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Main class for generating fractal images based on user input.
+ * This class handles the command line interface for gathering parameters
+ * and generating the fractal image using the specified transformations and parameters.
+ */
 @Slf4j @UtilityClass
 public class Main {
     private static final int TRANSFORMATIONS_COUNT = 5;
     private final SecureRandom random = new SecureRandom();
     private int stage = 1;
 
+    /**
+     * Entry point of the application.
+     *
+     * @param args command line arguments (not used)
+     */
     public static void main(String[] args) {
         PrintStream output = System.out;
         printUsage(output);
@@ -54,7 +64,7 @@ public class Main {
             AffineMatrix[] affineMatrices = new AffineMatrix[matrices];
             if (matrices == 0) {
                 int randomIndex = random.nextInt(TRANSFORMATIONS_COUNT);
-                affineMatrices = new AffineTransformations().getRandomTransformation(randomIndex);
+                affineMatrices = new AffineTransformations().getTransformation(randomIndex);
             } else {
                 for (int i = 0; i < nonLinearTransformations; i++) {
                     output.println("Enter the affine transformation matrix:");
@@ -69,20 +79,27 @@ public class Main {
             int threads = Integer.parseInt(reader.readLine());
 
             printStage(output);
+            int format = Integer.parseInt(reader.readLine());
+
+            printStage(output);
             FractalGenerator generator = new FractalGenerator(width, height, transformation);
             BufferedImage image = generator.generateFractal(iterations, points, affineMatrices, symmetry, threads);
-            ImageUtils.save(image, Paths.get("fractal.png"), ImageFormat.PNG);
+            generateImage(image, format);
 
-            output.println("The fractal image has been saved to the file fractal.png");
+            output.println("The fractal has been generated at fractal.[extension]");
 
         } catch (IOException e) {
             log.error("Error while reading the input");
         } catch (NumberFormatException e) {
             log.error("Invalid input! Enter a valid number.");
         }
-
     }
 
+    /**
+     * Prints the usage instructions for the application.
+     *
+     * @param output the output stream to print the usage instructions to
+     */
     private static void printUsage(PrintStream output) {
         output.println("""
             To generate a fractal image, provide the following arguments:
@@ -103,9 +120,19 @@ public class Main {
                 (if N == 0, random N will be chosen from the predetermined list)
             7. The symmetry coefficient of the fractal
             8. The number of threads to use for generating the fractal
+            9. Format:
+                1. PNG
+                2. JPEG
+                3. BMP
             """);
     }
 
+    /**
+     * Returns a Transformation object based on the specified index.
+     *
+     * @param index the index of the desired transformation
+     * @return the Transformation object corresponding to the specified index
+     */
     @SuppressWarnings("checkstyle:MagicNumber")
     private Transformation getTransformation(int index) {
         int randomIndex = index;
@@ -121,6 +148,12 @@ public class Main {
         };
     }
 
+    /**
+     * Reads and returns an AffineMatrix object from the provided BufferedReader.
+     *
+     * @param reader the BufferedReader to read the matrix from
+     * @return the AffineMatrix object read from the input
+     */
     @SuppressWarnings("checkstyle:MagicNumber")
     private AffineMatrix fillMatrix(BufferedReader reader) {
         try {
@@ -141,9 +174,14 @@ public class Main {
         } catch (IOException e) {
             log.error("Error while filling linear transformation! Pick a random one instead.");
         }
-        return new AffineTransformations().getRandomTransformation(random.nextInt(TRANSFORMATIONS_COUNT))[0];
+        return new AffineTransformations().getTransformation(random.nextInt(TRANSFORMATIONS_COUNT))[0];
     }
 
+    /**
+     * Prints the current stage of input required from the user.
+     *
+     * @param output the output stream to print the stage message to
+     */
     @SuppressWarnings("checkstyle:MagicNumber")
     private void printStage(PrintStream output) {
         switch (stage) {
@@ -179,8 +217,31 @@ public class Main {
                 output.println("8. Enter the number of threads to use for generating the fractal:");
                 stage++;
                 break;
+            case 9:
+                output.println("9. Enter the format of the image:");
+                stage++;
+                break;
             default:
                 output.println("Generating fractal...");
+        }
+    }
+
+    /**
+     * Prints the current stage of input required from the user.
+     *
+     * @param image the BufferedImage object to save
+     * @param index the index of the image format to save the image in
+     */
+    private void generateImage(BufferedImage image, int index) {
+        switch (index) {
+            case 1:
+                ImageUtils.save(image, Paths.get("fractal.png"), ImageFormat.PNG);
+                break;
+            case 2:
+                ImageUtils.save(image, Paths.get("fractal.jpeg"), ImageFormat.JPEG);
+                break;
+            default:
+                ImageUtils.save(image, Paths.get("fractal.bmp"), ImageFormat.BMP);
         }
     }
 }
