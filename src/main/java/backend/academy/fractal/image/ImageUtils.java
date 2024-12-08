@@ -14,7 +14,7 @@ public class ImageUtils {
         try {
             ImageIO.write(image, format.name(), new File(filename.toString()));
         } catch (IOException e) {
-
+            throw new RuntimeException("Failed to save image", e);
         }
     }
 }
