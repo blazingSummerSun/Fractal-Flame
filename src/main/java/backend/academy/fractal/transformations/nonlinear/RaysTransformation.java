@@ -1,4 +1,6 @@
-package backend.academy.fractal.transformations;
+package backend.academy.fractal.transformations.nonlinear;
+
+import backend.academy.fractal.transformations.Transformation;
 
 public class RaysTransformation implements Transformation {
     private final static double SCALE = 0.5;
@@ -12,7 +14,7 @@ public class RaysTransformation implements Transformation {
             rSquared = EPSILON; // Prevent division by zero
         }
 
-        double v44 = Math.sqrt(x * x + y * y); // Magnitude of the vector
+        double v44 = Math.sqrt(x * x + y * y);
         double factor = (v44 * Math.tan(PSI * Math.PI * v44)) / rSquared;
 
         double newX = SCALE * factor * Math.cos(x);

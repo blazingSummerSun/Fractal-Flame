@@ -1,4 +1,6 @@
-package backend.academy.fractal.transformations;
+package backend.academy.fractal.transformations.nonlinear;
+
+import backend.academy.fractal.transformations.Transformation;
 
 public class BubbleTransformation implements Transformation {
     private static final double SCALE = 1.7;

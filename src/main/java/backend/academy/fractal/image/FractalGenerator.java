@@ -1,6 +1,5 @@
-package backend.academy.fractal;
+package backend.academy.fractal.image;
 
-import backend.academy.fractal.image.FractalImage;
 import backend.academy.fractal.transformations.Transformation;
 import backend.academy.fractal.units.AffineMatrix;
 import backend.academy.fractal.units.Pixel;
