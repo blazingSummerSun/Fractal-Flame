@@ -4,6 +4,7 @@ import backend.academy.fractal.image.FractalImage;
 import backend.academy.fractal.transformations.Transformation;
 import backend.academy.fractal.units.AffineMatrix;
 import backend.academy.fractal.units.Pixel;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.security.SecureRandom;
@@ -133,18 +134,20 @@ public class FractalGenerator {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Pixel threadPixel = threadImage.pixel(x, y);
-                if (mainImage.contains(x, y)) {
-                    Pixel mainPixel = mainImage.pixel(x, y);
-                    Pixel newPixel = new Pixel(
-                            x, y,
-                            (mainPixel.r() + threadPixel.r()) / 2,
-                            (mainPixel.g() + threadPixel.g()) / 2,
-                            (mainPixel.b() + threadPixel.b()) / 2,
-                            mainPixel.hitCount() + threadPixel.hitCount(), 1
-                    );
-                    mainImage.updatePixel(x, y, newPixel);
-                } else {
-                    mainImage.updatePixel(x, y, threadPixel);
+                if (threadPixel.hitCount() > 0) {
+                    if (mainImage.contains(x, y)) {
+                        Pixel mainPixel = mainImage.pixel(x, y);
+                        Pixel newPixel = new Pixel(
+                                x, y,
+                                (mainPixel.r() + threadPixel.r()) / 2,
+                                (mainPixel.g() + threadPixel.g()) / 2,
+                                (mainPixel.b() + threadPixel.b()) / 2,
+                                mainPixel.hitCount() + threadPixel.hitCount(), 1
+                        );
+                        mainImage.updatePixel(x, y, newPixel);
+                    } else {
+                        mainImage.updatePixel(x, y, threadPixel);
+                    }
                 }
             }
         }
