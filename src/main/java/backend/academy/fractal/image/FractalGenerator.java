@@ -70,11 +70,12 @@ public class FractalGenerator {
             );
             mergeImages(generatedImage, threadImage);
         } else {
-            ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-            int pointsPerThread = num / numThreads + 1;
+            // numThreads - 1 since main thread is used
+            ExecutorService executor = Executors.newFixedThreadPool(numThreads - 1);
+            int pointsPerThread = (num / (numThreads - 1)) + 1;
             List<Future<FractalImage>> futures = new ArrayList<>();
 
-            for (int thread = 0; thread < numThreads; thread++) {
+            for (int thread = 0; thread < numThreads - 1; thread++) {
                 Future<FractalImage> future = executor.submit(() -> generateSnapshot(
                     pointsPerThread, maxIterations, matrices, symmetry, angleIncrement
                 ));
