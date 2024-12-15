@@ -65,7 +65,7 @@ public class FractalGenerator {
         double angleIncrement = 2 * Math.PI / symmetry;
 
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-        int pointsPerThread = num / numThreads;
+        int pointsPerThread = num / numThreads + 1;
         List<Future<FractalImage>> futures = new ArrayList<>();
 
         for (int thread = 0; thread < numThreads; thread++) {
