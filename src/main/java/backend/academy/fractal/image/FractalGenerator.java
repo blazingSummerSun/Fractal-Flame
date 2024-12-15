@@ -64,51 +64,68 @@ public class FractalGenerator {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         double angleIncrement = 2 * Math.PI / symmetry;
 
-        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-        int pointsPerThread = num / numThreads + 1;
-        List<Future<FractalImage>> futures = new ArrayList<>();
+        if (numThreads == 1) {
+            FractalImage threadImage = generateSnapshot(
+                num, maxIterations, matrices, symmetry, angleIncrement
+            );
+            mergeImages(generatedImage, threadImage);
+        } else {
+            ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+            int pointsPerThread = num / numThreads + 1;
+            List<Future<FractalImage>> futures = new ArrayList<>();
 
-        for (int thread = 0; thread < numThreads; thread++) {
-            Future<FractalImage> future = executor.submit(() -> {
-                FractalImage threadImage = FractalImage.create(width, height);
-                for (int points = 0; points < pointsPerThread; points++) {
-                    double newX = RANDOM.nextDouble(X_MIN, X_MAX);
-                    double newY = RANDOM.nextDouble(Y_MIN, Y_MAX);
-
-                    for (int step = INITIAL_ITER; step < maxIterations; step++) {
-                        int i = RANDOM.nextInt(matrices.length);
-                        double xLinear = matrices[i].a() * newX + matrices[i].b() * newY + matrices[i].c();
-                        double yLinear = matrices[i].d() * newX + matrices[i].e() * newY + matrices[i].f();
-
-                        double[] nonLinearTransformation = transformation.transform(xLinear, yLinear);
-                        newX = nonLinearTransformation[0];
-                        newY = nonLinearTransformation[1];
-                        if (step >= 0) {
-                            applySymmetry(
-                                symmetry, newX, newY, i, angleIncrement, matrices, threadImage
-                            );
-                        }
-                    }
-                }
-                return threadImage;
-            });
-            futures.add(future);
-        }
-
-        for (Future<FractalImage> future : futures) {
-            try {
-                FractalImage threadImage = future.get();
-                mergeImages(generatedImage, threadImage);
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException("Some threads failed to complete", e);
+            for (int thread = 0; thread < numThreads; thread++) {
+                Future<FractalImage> future = executor.submit(() -> generateSnapshot(
+                    pointsPerThread, maxIterations, matrices, symmetry, angleIncrement
+                ));
+                futures.add(future);
             }
-        }
 
-        executor.close();
+            for (Future<FractalImage> future : futures) {
+                try {
+                    FractalImage threadImage = future.get();
+                    mergeImages(generatedImage, threadImage);
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException("Some threads failed to complete", e);
+                }
+            }
+
+            executor.close();
+        }
 
         correction(generatedImage);
 
         return generateImage(image, generatedImage);
+    }
+
+    private FractalImage generateSnapshot(
+        int num,
+        int maxIterations,
+        AffineMatrix[] matrices,
+        int symmetry,
+        double angleIncrement
+    ) {
+        FractalImage threadImage = FractalImage.create(width, height);
+        for (int points = 0; points < num; points++) {
+            double newX = RANDOM.nextDouble(X_MIN, X_MAX);
+            double newY = RANDOM.nextDouble(Y_MIN, Y_MAX);
+
+            for (int step = INITIAL_ITER; step < maxIterations; step++) {
+                int i = RANDOM.nextInt(matrices.length);
+                double xLinear = matrices[i].a() * newX + matrices[i].b() * newY + matrices[i].c();
+                double yLinear = matrices[i].d() * newX + matrices[i].e() * newY + matrices[i].f();
+
+                double[] nonLinearTransformation = transformation.transform(xLinear, yLinear);
+                newX = nonLinearTransformation[0];
+                newY = nonLinearTransformation[1];
+                if (step >= 0) {
+                    applySymmetry(
+                        symmetry, newX, newY, i, angleIncrement, matrices, threadImage
+                    );
+                }
+            }
+        }
+        return threadImage;
     }
 
     /**
