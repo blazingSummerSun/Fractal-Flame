@@ -157,25 +157,34 @@ public class FractalGenerator {
                 int x1 = width - (int) (((X_MAX - symX) / (X_MAX - X_MIN)) * width);
                 int y1 = height - (int) (((Y_MAX - symY) / (Y_MAX - Y_MIN)) * height);
                 if (x1 < width && y1 < height) {
-                    if (threadImage.contains(x1, y1)) {
-                        Pixel oldPixel = threadImage.pixel(x1, y1);
-                        Pixel newPixel = new Pixel(
-                            x1, y1,
-                            (oldPixel.r() + matrices[i].red()) / 2,
-                            (oldPixel.g() + matrices[i].green()) / 2,
-                            (oldPixel.b() + matrices[i].blue()) / 2,
-                            oldPixel.hitCount() + 1, 1
-                        );
-                        threadImage.updatePixel(x1, y1, newPixel);
-                    } else {
-                        Pixel pixel = new Pixel(
-                            x1, y1,
-                            matrices[i].red(), matrices[i].green(), matrices[i].blue(), 1, 1
-                        );
-                        threadImage.updatePixel(x1, y1, pixel);
-                    }
+                    updateSymmetryPixel(x1, y1, matrices[i], threadImage);
                 }
             }
+        }
+    }
+
+    private void updateSymmetryPixel(
+        int x1,
+        int y1,
+        AffineMatrix matrix,
+        FractalImage threadImage
+    ) {
+        if (threadImage.contains(x1, y1)) {
+            Pixel oldPixel = threadImage.pixel(x1, y1);
+            Pixel newPixel = new Pixel(
+                x1, y1,
+                (oldPixel.r() + matrix.red()) / 2,
+                (oldPixel.g() + matrix.green()) / 2,
+                (oldPixel.b() + matrix.blue()) / 2,
+                oldPixel.hitCount() + 1, 1
+            );
+            threadImage.updatePixel(x1, y1, newPixel);
+        } else {
+            Pixel pixel = new Pixel(
+                x1, y1,
+                matrix.red(), matrix.green(), matrix.blue(), 1, 1
+            );
+            threadImage.updatePixel(x1, y1, pixel);
         }
     }
 
