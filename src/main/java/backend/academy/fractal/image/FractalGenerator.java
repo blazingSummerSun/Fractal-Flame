@@ -98,6 +98,16 @@ public class FractalGenerator {
         return generateImage(image, generatedImage);
     }
 
+    /**
+     * Generates a fractal image.
+     *
+     * @param num            the number of points to generate
+     * @param maxIterations  the maximum number of iterations for generating the fractal
+     * @param matrices       the affine transformation matrices
+     * @param symmetry       the symmetry coefficient of the fractal
+     * @param angleIncrement the angle increment for symmetry
+     * @return the generated fractal image
+     */
     private FractalImage generateSnapshot(
         int num,
         int maxIterations,
@@ -163,6 +173,14 @@ public class FractalGenerator {
         }
     }
 
+    /**
+     * Updates the pixel in the fractal image with the symmetry effect.
+     *
+     * @param x1          the X coordinate of the pixel
+     * @param y1          the Y coordinate of the pixel
+     * @param matrix      the affine matrix
+     * @param threadImage the fractal image where symmetry pixels are updating
+     */
     private void updateSymmetryPixel(
         int x1,
         int y1,
