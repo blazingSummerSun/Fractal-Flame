@@ -30,8 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j @UtilityClass
 public class Main {
     private static final int TRANSFORMATIONS_COUNT = 5;
-    private final SecureRandom random = new SecureRandom();
-    private int stage = 1;
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static int stage = 1;
 
     /**
      * Entry point of the application.
@@ -63,7 +63,7 @@ public class Main {
             int matrices = Integer.parseInt(reader.readLine());
             AffineMatrix[] affineMatrices = new AffineMatrix[matrices];
             if (matrices == 0) {
-                int randomIndex = random.nextInt(TRANSFORMATIONS_COUNT);
+                int randomIndex = RANDOM.nextInt(TRANSFORMATIONS_COUNT);
                 affineMatrices = new AffineTransformations().getTransformation(randomIndex);
             } else {
                 for (int i = 0; i < nonLinearTransformations; i++) {
@@ -88,10 +88,8 @@ public class Main {
 
             output.println("The fractal has been generated at fractal.[extension]");
 
-        } catch (IOException e) {
-            log.error("Error while reading the input");
-        } catch (NumberFormatException e) {
-            log.error("Invalid input! Enter a valid number.");
+        } catch (IOException | NumberFormatException e) {
+            output.println(e.getMessage());
         }
     }
 
@@ -134,10 +132,10 @@ public class Main {
      * @return the Transformation object corresponding to the specified index
      */
     @SuppressWarnings("checkstyle:MagicNumber")
-    private Transformation getTransformation(int index) {
+    private static Transformation getTransformation(int index) {
         int randomIndex = index;
         if (randomIndex == 0) {
-            randomIndex = random.nextInt(TRANSFORMATIONS_COUNT) + 1;
+            randomIndex = RANDOM.nextInt(TRANSFORMATIONS_COUNT) + 1;
         }
         return switch (randomIndex) {
             case 1 -> new DiamondTransformation();
@@ -155,7 +153,7 @@ public class Main {
      * @return the AffineMatrix object read from the input
      */
     @SuppressWarnings("checkstyle:MagicNumber")
-    private AffineMatrix fillMatrix(BufferedReader reader) {
+    private static AffineMatrix fillMatrix(BufferedReader reader) {
         try {
             String unparsedMatrix = reader.readLine();
             if (unparsedMatrix != null) {
@@ -172,9 +170,9 @@ public class Main {
                 return new AffineMatrix(a, b, c, d, e, f, red, green, blue);
             }
         } catch (IOException e) {
-            log.error("Error while filling linear transformation! Pick a random one instead.");
+            return new AffineTransformations().getTransformation(RANDOM.nextInt(TRANSFORMATIONS_COUNT))[0];
         }
-        return new AffineTransformations().getTransformation(random.nextInt(TRANSFORMATIONS_COUNT))[0];
+        return new AffineTransformations().getTransformation(RANDOM.nextInt(TRANSFORMATIONS_COUNT))[0];
     }
 
     /**
@@ -183,7 +181,7 @@ public class Main {
      * @param output the output stream to print the stage message to
      */
     @SuppressWarnings("checkstyle:MagicNumber")
-    private void printStage(PrintStream output) {
+    private static void printStage(PrintStream output) {
         switch (stage) {
             case 1:
                 output.println("1. Enter the width of the image in pixels:");
@@ -232,7 +230,7 @@ public class Main {
      * @param image the BufferedImage object to save
      * @param index the index of the image format to save the image in
      */
-    private void generateImage(BufferedImage image, int index) {
+    private static void generateImage(BufferedImage image, int index) {
         switch (index) {
             case 1:
                 ImageUtils.save(image, Paths.get("fractal.png"), ImageFormat.PNG);
